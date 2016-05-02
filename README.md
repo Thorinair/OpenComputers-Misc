@@ -1,2 +1,2 @@
 # OpenComputers-Misc
-Libraries, applications and 3D models I program and design for Open Computers.
+Applications, libraries and 3D printer models I program and design for the OpenComputers mod.
