@@ -1,13 +1,13 @@
 --[[
     Application: OC Component Methods
     Programmed by: Thorinair
-    Version: v1.0.0
+    Version: v1.0.1
     Description: Lists all available methods for a certain connected OpenComputers compatible component.
     Usage: Run the application and then type the component name you wish to scan. The methods will be listed as output with detailed descriptions when available.
     Requirements: Due to OC's lack of output scrolling, a larger screen is highly recommended.
 --]]
 
-component = require("component")
+local component = require("component")
 
 io.write("\nInstalled Components:\n  ")
 for address, componentType in component.list() do 
@@ -15,7 +15,7 @@ for address, componentType in component.list() do
 end
 
 io.write("\n\nComponent to scan: ")
-id = io.read()
+local id = io.read()
 
 if next(component.list(id)) ~= nil then
 	io.write("\nComponent Methods:\n")
