@@ -1,0 +1,18 @@
+{
+  label = "Bathroom Toilet (Top)",
+  tooltip = "3D printed.",
+  lightLevel = 0,
+  emitRedstone = true,
+  buttonMode = true,
+  collidable = {true, true},
+  
+  shapes = {   
+    { 1, 0, 11, 		15, 2, 16, 		texture = "quartz_block_top", state = false },
+    { 5, 2, 12, 		7, 4, 14, 			texture = "stone", state = false },
+    { 9, 2, 12, 		11, 3, 14, 		texture = "stone", state = false },
+    
+    { 1, 0, 11, 		15, 2, 16, 		texture = "quartz_block_top", state = true },
+    { 5, 2, 12, 		7, 3, 14, 			texture = "stone", state = true },
+    { 9, 2, 12, 		11, 4, 14, 		texture = "stone", state = true },
+  }
+}
