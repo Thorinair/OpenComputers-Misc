@@ -1,0 +1,15 @@
+{
+  label = "Reactor Snow Blocker",
+  tooltip = "3D printed.",
+  lightLevel = 0,
+  emitRedstone = false,
+  buttonMode = false,
+  collidable = {false, false},
+  
+  shapes = {
+    { 0, 0, 0, 		16, 1, 1, 		texture = "bigreactors:tile.blockReactorPart.controller.off" },
+    { 0, 0, 15, 	16, 1, 16, 	texture = "bigreactors:tile.blockReactorPart.controller.off" },
+    { 0, 0, 1, 		1, 1, 15, 		texture = "bigreactors:tile.blockReactorPart.controller.off" },
+    { 15, 0, 1, 	16, 1, 15, 	texture = "bigreactors:tile.blockReactorPart.controller.off" }
+  }
+}
