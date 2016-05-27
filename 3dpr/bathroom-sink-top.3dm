@@ -1,0 +1,22 @@
+{
+  label = "Bathroom Sink (Top)",
+  tooltip = "3D printed.",
+  lightLevel = 0,
+  emitRedstone = true,
+  buttonMode = false,
+  collidable = {true, true},
+  
+  shapes = {   
+    { 2, 0, 13, 		4, 2, 15, 			texture = "stone", state = false },
+    { 12, 0, 13, 		14, 2, 15, 		texture = "stone", state = false },
+    { 7, 0, 13, 		9, 4, 15, 			texture = "stone", state = false },
+    { 7, 4, 9, 			9, 6, 15, 			texture = "stone", state = false },
+    
+    { 2, 0, 13, 		4, 2, 15, 			texture = "stone", state = true },
+    { 12, 0, 13, 		14, 2, 15, 		texture = "stone", state = true },
+    { 7, 0, 13, 		9, 4, 15, 			texture = "stone", state = true },
+    { 7, 4, 9, 			9, 6, 15, 			texture = "stone", state = true },
+    
+    { 7, 0, 9, 			9, 4, 11, 		texture = "water_flow", state = true }
+  }
+}

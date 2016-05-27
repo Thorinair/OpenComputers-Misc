@@ -1,0 +1,27 @@
+{
+  label = "Bathroom Sink (Bottom)",
+  tooltip = "3D printed.",
+  lightLevel = 0,
+  emitRedstone = false,
+  buttonMode = false,
+  collidable = {true, true},
+  
+  shapes = {   
+    { 0, 11, 12, 		16, 16, 16, 		texture = "quartz_block_top", state = false },
+    { 0, 11, 0, 		2, 16, 12, 		texture = "quartz_block_top", state = false },
+    { 14, 11, 0, 		16, 16, 12, 		texture = "quartz_block_top", state = false },
+    { 2, 11, 0, 		14, 16, 2, 		texture = "quartz_block_top", state = false },
+    { 2, 11, 2, 		14, 12, 12, 		texture = "quartz_block_top", state = false },
+    { 4, 0, 8, 			12, 11, 14, 		texture = "quartz_block_top", state = false },
+    
+    { 0, 11, 12, 		16, 16, 16, 		texture = "quartz_block_top", state = true },
+    { 0, 11, 0, 		2, 16, 12, 		texture = "quartz_block_top", state = true },
+    { 14, 11, 0, 		16, 16, 12, 		texture = "quartz_block_top", state = true },
+    { 2, 11, 0, 		14, 16, 2, 		texture = "quartz_block_top", state = true },
+    { 2, 11, 2, 		14, 12, 12, 		texture = "quartz_block_top", state = true },
+    { 4, 0, 8, 			12, 11, 14, 		texture = "quartz_block_top", state = true },
+    
+    { 2, 12, 2, 		14, 14, 12, 		texture = "water_still", state = true },
+    { 7, 14, 9, 		9, 16, 11, 		texture = "water_flow", state = true }
+  }
+}
