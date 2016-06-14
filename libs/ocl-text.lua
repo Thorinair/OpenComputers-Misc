@@ -590,13 +590,13 @@ local function drawChar(gpu, c, x, y, s)
 		gpu.filledRectangle(x+4*s, y+6*s, 1*s, 1*s)
 	-->
 	elseif c == '>' then
-		gpu.filledRectangle(x+4*s, y+0*s, 1*s, 1*s)
-		gpu.filledRectangle(x+3*s, y+1*s, 1*s, 1*s)
-		gpu.filledRectangle(x+2*s, y+2*s, 1*s, 1*s)
-		gpu.filledRectangle(x+1*s, y+3*s, 1*s, 1*s)
-		gpu.filledRectangle(x+2*s, y+4*s, 1*s, 1*s)
-		gpu.filledRectangle(x+3*s, y+5*s, 1*s, 1*s)
-		gpu.filledRectangle(x+4*s, y+6*s, 1*s, 1*s)
+		gpu.filledRectangle(x+1*s, y+0*s, 1*s, 1*s)
+		gpu.filledRectangle(x+2*s, y+1*s, 1*s, 1*s)
+		gpu.filledRectangle(x+3*s, y+2*s, 1*s, 1*s)
+		gpu.filledRectangle(x+4*s, y+3*s, 1*s, 1*s)
+		gpu.filledRectangle(x+3*s, y+4*s, 1*s, 1*s)
+		gpu.filledRectangle(x+2*s, y+5*s, 1*s, 1*s)
+		gpu.filledRectangle(x+1*s, y+6*s, 1*s, 1*s)
 	--[
 	elseif c == '[' then
 		gpu.filledRectangle(x+1*s, y+0*s, 3*s, 1*s)
