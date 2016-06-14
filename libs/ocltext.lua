@@ -1,15 +1,16 @@
 --[[
-    Library: OCLights Text
+    Library: OCL Text
     Programmed by: Thorinair
     Version: v1.0.0
     Description: Provides an API for drawing text on OCLights 2 monitors.
-    Usage: Include the library in your program using the require function, and then access the functions by their name. 
+    Usage: First add this library to the OpenComputers computer by placing it into the lib folder.
+    	   Then, include the library in your program using the require function, and then access the functions by their name. 
            The functions that should be used are on the bottom of this file, along with documentation.
     Requirements: OCLights 2 mod has to be installed, and a GPU should be connected with the OpenComputer.
 --]]
 
 
-function drawChar(gpu, c, r, g, b, a, rb, gb, bb, ab, x, y)
+ocltext.function drawChar(gpu, c, r, g, b, a, rb, gb, bb, ab, x, y)
 
 	local n = x + 6
 
