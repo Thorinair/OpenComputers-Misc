@@ -1,7 +1,7 @@
 --[[
     Library: OCL Text
     Programmed by: Thorinair
-    Version: v1.0.0
+    Version: v1.0.1
     Description: Provides an API for drawing text on OCLights 2 monitors.
     Usage: First add this library to the OpenComputers computer by placing it into the lib folder.
     	   Then, include the library in your program using the require function, and then access the functions by their name. 
