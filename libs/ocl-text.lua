@@ -7,6 +7,7 @@
     	   Then, include the library in your program using the require function, and then access the functions by their name. 
            The functions that should be used are on the bottom of this file, along with documentation.
            When displaying text, keep in mind that the pipe character "|" is used for a smaller space between characters.
+           Additionally, it is highly suggested that you call gpu.startFrame() and gpu.endFrame() in your main program when drawing to avoid flicker.
     Supported dymbols:
     	   123456789
     	   abcdefghijklmnopqrstuvwxyz
@@ -691,7 +692,6 @@ end
     	aB:		Alpha (transparency) of the background, 0-255.
 --]]
 function ocltext.drawText(gpu, text, x, y, size, align, r, g, b, a, rB, gB, bB, aB)
-	gpu.startFrame()
 	local length = string.len(text)
 	local n = 0
 	local offs
@@ -726,7 +726,6 @@ function ocltext.drawText(gpu, text, x, y, size, align, r, g, b, a, rB, gB, bB, 
 	for i = 1, length do
 		offs = drawChar(gpu, string.sub(text, i, i), offs, y, size)
 	end
-	gpu.endFrame()
 end	
 
 --[[
