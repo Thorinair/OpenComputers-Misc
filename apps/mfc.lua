@@ -24,7 +24,7 @@ wire.hohlraum		= colors.blue
 local version = "v1.0.0"
 
 local conversion = 2.5
-local intervalMeasure = 1
+local intervalMeasure = 0.1
 
 local gpu
 local redstone
@@ -43,6 +43,8 @@ value.reactor_plasma = 0
 value.reactor_case = 0
 
 value.laser_energy = 0
+value.core_energy = 0
+value.core_max = 0
 
 local function round(num, places)
 		local shift = 10 ^ places
@@ -87,11 +89,10 @@ end
     Draws the loading screen with an empty progress bar.
 --]]
 local function drawLoading()
+	gpu.startFrame()
 
 	gpu.setColor(0, 0, 0)
 	gpu.fill()
-	
-	os.sleep(0.05)
 	
 	oclt.drawText(gpu, "Starting up Mekanism Fusion Control by Thorinair.", 224, 108, 1, oclt.center, 255, 255, 255, 255, 0, 0, 0, 0)	
 	oclt.drawText(gpu, "Please wait...", 224, 120, 1, oclt.center, 255, 255, 255, 255, 0, 0, 0, 0)	
@@ -102,6 +103,8 @@ local function drawLoading()
 	gpu.filledRectangle(147, 141, 1, 4)
 	gpu.filledRectangle(300, 141, 1, 4)
 	gpu.filledRectangle(147, 145, 154, 1)
+
+	gpu.endFrame()
 	
 	os.sleep(0.5)
 end
@@ -144,6 +147,8 @@ end
     Draws reactor info.
 --]]
 local function drawReactorInfo()
+	gpu.startFrame()
+
 	gpu.setColor(0, 0, 0)
 	gpu.filledRectangle(58, 211, 88, 35)
 
@@ -159,17 +164,22 @@ local function drawReactorInfo()
 	oclt.drawText(gpu, oclt.formatValue(value.reactor_case, "|MK") 
 		.. "|/|800|MK", 58, 238, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
 
+
+
 	oclt.drawText(gpu, oclt.formatValue(value.laser_energy, "|RF"), 58, 128, 1, oclt.left, 255, 0, 0, 255, 0, 0, 0, 255)
+	oclt.drawText(gpu, oclt.formatValue(round(value.core_energy/1000, 0), "|KRF|/|") .. oclt.formatValue(round(value.core_max/1000, 0), "|KRF"), 58, 137, 1, oclt.left, 0, 255, 255, 255, 0, 0, 0, 255)
+
+	gpu.endFrame()
 end	
 
 --[[
     Draws the whole UI. Used only during startup.
 --]]
 local function drawUI()
+	gpu.startFrame()
+
 	gpu.setColor(0, 0, 0)
 	gpu.fill()
-	
-	os.sleep(0.05)
 
 	oclt.drawText(gpu, "Reactor Info", 7, 200, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
 
@@ -177,6 +187,8 @@ local function drawUI()
 	oclt.drawText(gpu, "Output:", 10, 220, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
 	oclt.drawText(gpu, "Plasma:", 10, 229, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
 	oclt.drawText(gpu, "Case:", 10, 238, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+
+	gpu.endFrame()
 end	
 
 --[[
@@ -294,6 +306,9 @@ local function updateMeasure()
 	value.reactor_case = round(reactor.getCaseHeat() / 1000000, 0)
 
 	value.laser_energy = laser.getStored() / 2.5
+
+	value.core_energy = core.getEnergyStored()
+	value.core_max = core.getMaxEnergyStored()
 end	
 
 local function drawMeasure()
