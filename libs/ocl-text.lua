@@ -691,7 +691,7 @@ end
     	aB:		Alpha (transparency) of the background, 0-255.
 --]]
 function ocltext.drawText(gpu, text, x, y, size, align, r, g, b, a, rB, gB, bB, aB)
-
+	gpu.push()
 	local length = string.len(text)
 	local n = 0
 	local offs
@@ -713,10 +713,12 @@ function ocltext.drawText(gpu, text, x, y, size, align, r, g, b, a, rB, gB, bB, 
 	end
 	local bgOffs = offs
 
-	-- Draw Background
-	gpu.setColor(rB, gB, bB, aB)
-	for i = 1, length do
-		bgOffs = drawBackground(gpu, string.sub(text, i, i), bgOffs, y, size)
+	if aB > 0 then
+		-- Draw Background
+		gpu.setColor(rB, gB, bB, aB)
+		for i = 1, length do
+			bgOffs = drawBackground(gpu, string.sub(text, i, i), bgOffs, y, size)
+		end
 	end
 
 	-- Draw Characters
@@ -724,6 +726,7 @@ function ocltext.drawText(gpu, text, x, y, size, align, r, g, b, a, rB, gB, bB, 
 	for i = 1, length do
 		offs = drawChar(gpu, string.sub(text, i, i), offs, y, size)
 	end
+	gpu.pop()
 end	
 
 --[[
