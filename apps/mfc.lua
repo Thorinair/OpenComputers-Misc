@@ -878,6 +878,8 @@ end
 local function drawUI()
 	gpu.startFrame()
 
+	value.moment = 0
+
 	clearMonitor()
 
 	drawStatic() 
@@ -959,7 +961,7 @@ end
     	input:		Input wire number.
 --]]
 local function redstoneHandler(event, address, side, value, input)
-	print(event .. ", " .. address .. ", " .. side .. ", " .. value .. ", " .. input)
+	-- print(event .. ", " .. address .. ", " .. side .. ", " .. value .. ", " .. input)
 	if side == sides.up and input > 0 then
 		if monitorToggle then
 			monitorToggle = false
@@ -994,7 +996,7 @@ end
     Attempts to connect to OCLights 2 GPU and sets up the touch event.
 --]]
 local function connectGpu()
-	print("Connecting to OCLights 2 GPU...")
+	-- print("Connecting to OCLights 2 GPU...")
 	if component.ocl_gpu ~= nil then
 		gpu = component.ocl_gpu
 		event.ignore("monitor_up", touchHandler)
