@@ -146,10 +146,7 @@ local function graphReadInitial()
 
 		io.write("# Energy Core History #")
 
-		value.core_graph[0] = -1
-		io.write("\n" .. tostring(value.core_graph[0]))
-
-		for i = 1, 95, 1 do
+		for i = 0, 95, 1 do
 			value.core_graph[i] = 0
 			io.write("\n" .. tostring(value.core_graph[i]))
 		end	
