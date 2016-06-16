@@ -21,6 +21,7 @@ wire.trit_exp	= colors.silver
 wire.announcer	= colors.cyan
 wire.ambience	= colors.purple
 wire.hohlraum	= colors.blue
+wire.monitor	= colors.brown
 
 local version = "v1.0.0"
 
@@ -38,6 +39,7 @@ local core
 local loadSteps = 9
 local loadProgress = 0
 local graphCount = 0
+local monitorToggle = true
 
 local value = {}
 value.reactor_status = false
@@ -146,12 +148,6 @@ local function graphReadInitial()
 		print("Done.")		
 	end	
 	drawProgress()
-end
-
---[[
-    Reads the graph file from disk.
---]]
-local function graphRead()
 end
 
 --[[
@@ -353,6 +349,34 @@ local function drawValueCore()
 end	
 
 --[[
+    Draws the graph on the monitor.
+--]]
+local function drawGraph()
+	gpu.startFrame()
+
+	for i = 0, 95, 1 do
+		if value.core_graph[i] == -1 then
+			gpu.setColor(255, 0, 0)
+			gpu.filledRectangle(139-i, 52, 1, 128)
+		else
+			local bar = (1-value.core_graph[i]/value.core_max)*128
+			gpu.setColor(0, 255, 255)
+			if bar == 0 then
+				gpu.filledRectangle(139-i, 52+bar, 1, 128)
+			elseif bar == 128 then
+				gpu.filledRectangle(139-i, 52+bar, 1, 0)
+			else
+				gpu.filledRectangle(139-i, 52+bar, 1, 129-bar)
+			end	
+			gpu.setColor(0, 0, 0)
+			gpu.filledRectangle(139-i, 52, 1, bar)
+		end
+	end
+
+	gpu.endFrame()
+end
+
+--[[
     Draws a block for the schematic.
     	x:		X monitor coordinate to draw the block at.
     	y:		Y monitor coordinate to draw the block at.
@@ -545,6 +569,13 @@ local function drawStatic()
 	gpu.filledRectangle(291, 206, 10, 10)
 
 	oclt.drawText(gpu, "Status:", 243, 225, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+
+	oclt.drawText(gpu, "Reactor Info", 7, 200, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+
+	oclt.drawText(gpu, "Status:", 10, 211, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "Output:", 10, 220, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "Plasma:", 10, 229, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "Case:", 10, 238, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
 end	
 
 --[[
@@ -787,6 +818,22 @@ local function drawSchematicSunlight()
 end	
 
 --[[
+    Redraws all measurable info on the screen.
+--]]
+local function drawMeasure()
+	gpu.startFrame()
+
+	drawSchematicSunlight() 
+	drawReactorInfo()
+	drawValueAmplifier()
+	drawValueTritium()
+	drawValueDeuterium()
+	drawValueCore()
+
+	gpu.endFrame()
+end
+
+--[[
     Draws the whole UI. Used only during startup.
 --]]
 local function drawUI()
@@ -808,13 +855,9 @@ local function drawUI()
 	drawSchematicDeuteriumExport()
 	drawSchematicHohlraumExport()
 	drawSchematicOutput()
-
-	oclt.drawText(gpu, "Reactor Info", 7, 200, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
-
-	oclt.drawText(gpu, "Status:", 10, 211, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "Output:", 10, 220, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "Plasma:", 10, 229, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "Case:", 10, 238, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+	
+	drawMeasure()
+	drawGraph()
 
 	gpu.endFrame()
 end	
@@ -841,21 +884,35 @@ end
     	input:		Input wire number.
 --]]
 local function redstoneHandler(event, address, side, value, input)
-	--print(event .. ", " .. address .. ", " .. side .. ", " .. value .. ", " .. input)
-	gpu.startFrame()
+	print(event .. ", " .. address .. ", " .. side .. ", " .. value .. ", " .. input)
+	if side == sides.up and input > 0 then
+		if monitorToggle then
+			monitorToggle = false
+			clearMonitor()
+		else
+			monitorToggle = true
+			drawUI()
+			drawMeasure()
+			drawGraph()
+		end	
+	else
+		if monitorToggle then	
+			gpu.startFrame()
 
-	drawSchematicLaser()
-	drawSchematicAmplifier()
-	drawSchematicTritiumProduction()
-	drawSchematicDeuteriumProduction()
-	drawSchematicTritiumImport()
-	drawSchematicDeuteriumImport()
-	drawSchematicTritiumExport()
-	drawSchematicDeuteriumExport()
-	drawSchematicHohlraumExport()
-	drawSchematicOutput()
+			drawSchematicLaser()
+			drawSchematicAmplifier()
+			drawSchematicTritiumProduction()
+			drawSchematicDeuteriumProduction()
+			drawSchematicTritiumImport()
+			drawSchematicDeuteriumImport()
+			drawSchematicTritiumExport()
+			drawSchematicDeuteriumExport()
+			drawSchematicHohlraumExport()
+			drawSchematicOutput()
 
-	gpu.endFrame()
+			gpu.endFrame()
+		end
+	end	
 end
 
 --[[
@@ -985,22 +1042,6 @@ local function updateMeasure()
 end	
 
 --[[
-    Redraws all measurable info on the screen.
---]]
-local function drawMeasure()
-	gpu.startFrame()
-
-	drawSchematicSunlight() 
-	drawReactorInfo()
-	drawValueAmplifier()
-	drawValueTritium()
-	drawValueDeuterium()
-	drawValueCore()
-
-	gpu.endFrame()
-end
-
---[[
     Thread used for measuring the sensors.
 --]]
 local function threadMeasure()
@@ -1009,9 +1050,14 @@ local function threadMeasure()
 	while true do
 		os.sleep(intervalMeasure)
 		updateMeasure()
-		drawMeasure()
+		if monitorToggle then
+			drawMeasure()
+		end	
 		if graphCount <= 0 then
 			graphUpdate()
+			if monitorToggle then
+				drawGraph()
+			end	
 			graphCount = intervalGraph / intervalMeasure
 		end	
 		graphCount = graphCount - 1
@@ -1053,9 +1099,6 @@ local function start()
 	os.sleep(0.4)
 	print("Drawing UI...")
 	drawUI()
-	print("Done.")
-	print("Sending data to monitor...")
-	drawMeasure()
 	print("Done.")
 	print("Starting up main thread...")	
 
