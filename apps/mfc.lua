@@ -23,11 +23,25 @@ wire.ambience	= colors.purple
 wire.hohlraum	= colors.blue
 wire.monitor	= colors.brown
 
+local button = {}
+button.ignition 	= true
+button.lasers 		= true
+button.output 		= true
+button.deut_prod	= true
+button.deut_imp 	= true
+button.deut_exp 	= true
+button.trit_prod	= true
+button.trit_imp		= true
+button.trit_exp		= true
+button.announcer	= true
+button.ambience		= true
+button.hohlraum		= true
+
 local version = "v1.0.0"
 
 local conversion = 2.5
-local intervalMeasure = 0.1
-local intervalGraph = 1
+local intervalMeasure = 1
+local intervalGraph = 900
 
 local gpu
 local redstone
@@ -95,6 +109,14 @@ local function getRedstone(out)
 	else
 		return false
 	end		
+end
+
+--[[
+    Toggles a redstone output.
+    	out: 	The bundled wire to toggle.
+]]
+local function toggleRedstone(out)
+	setRedstone(out, not getRedstone(out))
 end
 
 --[[
@@ -245,6 +267,26 @@ local function drawButton(x, y, width, height, show)
 	gpu.filledRectangle(x+width-2, y, 1, 1)
 	gpu.filledRectangle(x+1, y+height-1, 1, 1)
 	gpu.filledRectangle(x+width-2, y+height-1, 1, 1)
+end
+
+--[[
+    Draws all buttons.
+--]]
+local function drawButtons() 
+	gpu.startFrame()
+
+	drawButton(218, 134, 12, 12, button.ignition)
+	drawButton(218, 26, 12, 12, button.lasers)
+	drawButton(218, 230, 12, 12, button.output)
+	drawButton(410, 98, 12, 12, button.deut_prod)
+	drawButton(410, 134, 12, 12, button.deut_imp)
+	drawButton(266, 182, 12, 12, button.deut_exp)
+	drawButton(278, 86, 12, 12, button.trit_prod)
+	drawButton(386, 134, 12, 12, button.trit_imp)
+	drawButton(170, 182, 12, 12, button.trit_exp)
+	drawButton(266, 206, 12, 12, button.hohlraum)
+
+	gpu.endFrame()
 end
 
 --[[
@@ -855,11 +897,27 @@ local function drawUI()
 	drawSchematicDeuteriumExport()
 	drawSchematicHohlraumExport()
 	drawSchematicOutput()
+
+	drawButtons() 
 	
 	drawMeasure()
 	drawGraph()
 
 	gpu.endFrame()
+end	
+
+--[[
+    Processes the input touch to determine if an area was touched.
+    	tx:		X monitor coordinate of the touch.
+    	ty:		Y monitor coordinate of the touch.
+    	x:		X start of the area.
+    	y:		Y start of the area.
+    	width:	Width of the area.
+    	height:	Height of the area.
+    	return:	Boolean whether the area was touched.
+--]]
+local function touchArea(tx, ty, x, y, width, height)
+	return tx >= x and tx <= x+width and ty >= y and ty <= y+height	
 end	
 
 --[[
@@ -872,8 +930,28 @@ end
 --]]
 local function touchHandler(event, address, x, y, player)
 	print(event .. ", " .. address .. ", " .. x .. ", " .. y .. ", " .. player)
-	if x >= 20 and x <= 120 and y >= 20 and y <= 120 then
-		print("Boop!")
+	if monitorToggle then
+		if touchArea(x, y, 218, 134, 12, 12) and button.ignition then
+			toggleRedstone(wire.ignition)
+		elseif touchArea(x, y, 218, 26, 12, 12) and button.lasers then
+			toggleRedstone(wire.lasers)
+		elseif touchArea(x, y, 218, 230, 12, 12) and button.output then
+			toggleRedstone(wire.output)
+		elseif touchArea(x, y, 410, 98, 12, 12) and button.deut_prod then
+			toggleRedstone(wire.deut_prod)
+		elseif touchArea(x, y, 410, 134, 12, 12) and button.deut_imp then
+			toggleRedstone(wire.deut_imp)
+		elseif touchArea(x, y, 266, 182, 12, 12) and button.deut_exp then
+			toggleRedstone(wire.deut_exp)
+		elseif touchArea(x, y, 278, 86, 12, 12) and button.trit_prod then
+			toggleRedstone(wire.trit_prod)
+		elseif touchArea(x, y, 386, 134, 12, 12) and button.trit_imp then
+			toggleRedstone(wire.trit_imp)
+		elseif touchArea(x, y, 170, 182, 12, 12) and button.trit_exp then
+			toggleRedstone(wire.trit_exp)
+		elseif touchArea(x, y, 266, 206, 12, 12) and button.hohlraum then
+			toggleRedstone(wire.hohlraum)
+		end
 	end
 end
 
@@ -1048,7 +1126,6 @@ local function threadMeasure()
 	print("Done.")
 	print("\nRunning. Press Ctrl+Alt+C to exit.")
 	while true do
-		os.sleep(intervalMeasure)
 		updateMeasure()
 		if monitorToggle then
 			drawMeasure()
@@ -1061,6 +1138,8 @@ local function threadMeasure()
 			graphCount = intervalGraph / intervalMeasure
 		end	
 		graphCount = graphCount - 1
+
+		os.sleep(intervalMeasure)
 	end	
 end
 
@@ -1118,8 +1197,6 @@ local function start()
 	event.ignore("redstone_changed", redstoneHandler)
 	print("Done.")
 	print("Exiting...")
-
-	-- drawButton(8, 8, 32, 32, false)
 end	
 
 start()
