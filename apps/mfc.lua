@@ -1,5 +1,6 @@
 local component = require("component")
 local event = require("event")
+local fs = require("filesystem")
 local sides = require("sides")
 local colors = require("colors")
 local term = require("term")
@@ -34,7 +35,7 @@ local laser
 local me
 local core
 
-local loadSteps = 7
+local loadSteps = 9
 local loadProgress = 0
 local graphCount = 0
 
@@ -47,7 +48,7 @@ value.reactor_case = 0
 value.laser_energy = 0
 value.core_energy = 0
 value.core_max = 0
-value.core_graph = 0
+value.core_graph = {}
 
 value.me_trit = 0
 value.me_deut = 0
@@ -95,6 +96,109 @@ local function getRedstone(out)
 end
 
 --[[
+    Draws the loading screen progress bar.
+--]]
+local function drawProgress()
+	loadProgress = loadProgress + (100/loadSteps)
+	if loadProgress > 0 then
+		local barWidth = 152 * (loadProgress/100)
+		gpu.filledRectangle(148, 141, barWidth, 4)
+	end
+	os.sleep(0.05)
+end
+
+--[[
+    Reads the graph file from disk for the first time.
+--]]
+local function graphReadInitial()
+	local f = io.open("graph", "r")
+	print("Attempting to read from graph file...")
+
+	if f == nil then
+		print("No graph file found. Creating a new one.")
+
+		local fNew = io.open("graph", "w")
+		io.output(fNew)
+
+		io.write("# Energy Core History #")
+
+		value.core_graph[0] = -1
+		io.write("\n" .. tostring(value.core_graph[0]))
+
+		for i = 1, 95, 1 do
+			value.core_graph[i] = 0
+			io.write("\n" .. tostring(value.core_graph[i]))
+		end	
+
+		io.close(fNew)
+		print("Done.")		
+	else
+		print("Found graph file. Loading history.")	
+
+		io.input(f)	
+
+		local e = io.read()
+		for i = 0, 95, 1 do
+			value.core_graph[i] = tonumber(io.read())
+		end	
+
+		io.close(f)
+		print("Done.")		
+	end	
+	drawProgress()
+end
+
+--[[
+    Reads the graph file from disk.
+--]]
+local function graphRead()
+end
+
+--[[
+    Writes the graph file to disk.
+--]]
+local function graphWrite()
+	local f = io.open("graph", "w")
+	io.output(f)
+
+	io.write("# Energy Core History #")
+
+	for i = 0, 95, 1 do
+		io.write("\n" .. tostring(value.core_graph[i]))
+	end	
+
+	io.close(f)
+end
+
+--[[
+    Updates the graph values.
+--]]
+
+function graphUpdate()
+	for i = 94, 0, -1 do
+		value.core_graph[i+1] = value.core_graph[i]
+	end	
+	value.core_graph[0] = value.core_energy
+	
+	graphWrite()
+end
+
+
+function graphUpdateBreak()
+	print ("Adding breakpoint to graph...")
+
+	for i = 94, 0, -1 do
+		value.core_graph[i+1] = value.core_graph[i]
+	end	
+	value.core_graph[0] = -1
+	
+	graphWrite()
+
+	print("Done.")	
+	drawProgress()
+end
+
+--[[
     Clears all contents of the monitor.
 --]]
 local function clearMonitor()
@@ -123,18 +227,6 @@ local function drawLoading()
 	gpu.endFrame()
 	
 	os.sleep(0.5)
-end
-
---[[
-    Draws the loading screen progress bar.
---]]
-local function drawProgress()
-	loadProgress = loadProgress + (100/loadSteps)
-	if loadProgress > 0 then
-		local barWidth = 152 * (loadProgress/100)
-		gpu.filledRectangle(148, 141, barWidth, 4)
-	end
-	os.sleep(0.05)
 end
 
 --[[
@@ -893,13 +985,6 @@ local function updateMeasure()
 end	
 
 --[[
-    Updates the graph values.
---]]
-local function updateGraph()
-	value.core_graph = value.core_energy
-end	
-
---[[
     Redraws all measurable info on the screen.
 --]]
 local function drawMeasure()
@@ -920,13 +1005,13 @@ end
 --]]
 local function threadMeasure()
 	print("Done.")
-	print("Running. Press Ctrl+Alt+C to exit.")
+	print("\nRunning. Press Ctrl+Alt+C to exit.")
 	while true do
 		os.sleep(intervalMeasure)
 		updateMeasure()
 		drawMeasure()
 		if graphCount <= 0 then
-			updateGraph()
+			graphUpdate()
 			graphCount = intervalGraph / intervalMeasure
 		end	
 		graphCount = graphCount - 1
@@ -962,6 +1047,8 @@ local function start()
 	connectMe()
 	connectCore()
 	initialMeasure()
+	graphReadInitial()
+	graphUpdateBreak()
 
 	os.sleep(0.4)
 	print("Drawing UI...")
@@ -970,7 +1057,7 @@ local function start()
 	print("Sending data to monitor...")
 	drawMeasure()
 	print("Done.")
-	print("Starting up threads...")	
+	print("Starting up main thread...")	
 
 	--[[
 	while true do
@@ -980,7 +1067,7 @@ local function start()
 
 	coroutine.resume(coroutine.create(threadMeasure))
 
-	print("Clearning monitor...")
+	print("\nClearning monitor...")
 	clearMonitor()
 	print("Done.")
 	print("Unregistering Events...")
