@@ -1,3 +1,34 @@
+--[[
+    Application: MFC (Mekanism Fusion Control)
+    Programmed by: Thorinair
+    Version: v1.0.0
+    Description: The ultimate Mekanism fusion control software, which uses OCLights 2 screens.
+    Usage: Download the library, connect all the necessary components listed in requirements and run the software.
+    	   The software works in two modes: Automatic and Manual. Automatic mode will automatically toggle parts of your facility to start a reaction,
+    	   while the Manual mode lets you manually toggle them. The screen can be toggled using a redstone signal connected to Brown wire.
+    Requirements: OCLights 2 mod has to be installed, and a GPU should be connected with the OpenComputer.
+    			  Additionally, the OCL Text library from this same repository should be installed on the OpenComputer.
+			  	  A Redstone Controller should be attached to the computer. The wires are as follow:
+					- White			Sends a signal to the Laser Amplifier to start the Reactor.
+					- Orange		Toggles lasers for precharging of energy.
+					- Magenta		Toggles energy output from the Reactor.
+					- Light blue	Toggles Deuterium production.
+					- Yellow		Toggles Deuterium importing to the ME Network.
+					- Lime			Toggles Deuterium exporting from the ME Network into the Reactor.
+					- Pink			Toggles Tritium production.
+					- Gray			Toggles Tritium importing to the ME Network.
+					- Silver		Toggles Tritium exporting from the ME Network into the Reactor.
+					- Cyan			Plays the announcer sound file of your choice. Use a Howler Alarm for this.
+					- Purple		Plays the ambient sound when the Reactor is running. Use a Howler Alarm for this.
+					- Blue			Injects a Hohlraum into the Reactor.
+					- Brown			Input wire for toggling the screen on and off.	
+    			  The following components are required to be attached to adapters:
+    			  	- Reactor Logic Adapter (from Mekanism)
+					- Laser Amplifier (from Mekanism)
+					- ME Controller (from Applied Energistics 2)
+					- Energy Core (from Draconic Evolution)
+--]]
+
 local component = require("component")
 local event = require("event")
 local fs = require("filesystem")
