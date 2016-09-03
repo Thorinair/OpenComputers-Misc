@@ -23,25 +23,15 @@ wire.ambience	= colors.purple
 wire.hohlraum	= colors.blue
 wire.monitor	= colors.brown
 
-local button = {}
-button.ignition 	= true
-button.lasers 		= true
-button.output 		= true
-button.deut_prod	= true
-button.deut_imp 	= true
-button.deut_exp 	= true
-button.trit_prod	= true
-button.trit_imp		= true
-button.trit_exp		= true
-button.announcer	= true
-button.ambience		= true
-button.hohlraum		= true
-
 local version = "v1.0.0"
 
 local conversion = 2.5
 local intervalMeasure = 1
-local intervalGraph = 900
+local intervalGraph = 225
+local requirementEnergy = 1000000000
+local requirementPrecharge = 400000000
+local requirementFuel = 720000
+local requirementHohlraum = 1
 
 local gpu
 local redstone
@@ -50,10 +40,13 @@ local laser
 local me
 local core
 
-local loadSteps = 9
+local loadSteps = 10
 local loadProgress = 0
 local graphCount = 0
 local monitorToggle = true
+local automatic = true
+local countdown = 6
+local stopInitiated = false
 
 local value = {}
 value.reactor_status = false
@@ -69,8 +62,10 @@ value.core_graph = {}
 value.me_trit = 0
 value.me_deut = 0
 value.me_hohl = 0
+value.me_hohl_old = 0
 
 value.moment = 0
+value.status = 0
 
 local function round(num, places)
 		local shift = 10 ^ places
@@ -81,6 +76,19 @@ local function round(num, places)
 		end
 			
 		return result
+end
+
+--[[
+    Reads the set redstone output and input.
+    	out: 	The bundled wire to read from.
+    	return:	Boolean being output.
+--]]
+local function getRedstone(out)
+	if redstone.getBundledOutput(side, out) > 0 or redstone.getBundledInput(side, out) > 0 then
+		return true
+	else
+		return false
+	end		
 end
 
 --[[
@@ -95,21 +103,10 @@ local function setRedstone(out, signal)
 	else
 		value = 0	
 	end		
-	redstone.setBundledOutput(side, out, value)
+	if getRedstone(out) ~= signal then
+		redstone.setBundledOutput(side, out, value)
+	end	
 end	
-
---[[
-    Reads the set redstone output and input.
-    	out: 	The bundled wire to read from.
-    	return:	Boolean being output.
---]]
-local function getRedstone(out)
-	if redstone.getBundledOutput(side, out) > 0 or redstone.getBundledInput(side, out) > 0 then
-		return true
-	else
-		return false
-	end		
-end
 
 --[[
     Toggles a redstone output.
@@ -188,7 +185,6 @@ end
 --[[
     Updates the graph values.
 --]]
-
 function graphUpdate()
 	for i = 94, 0, -1 do
 		value.core_graph[i+1] = value.core_graph[i]
@@ -198,7 +194,9 @@ function graphUpdate()
 	graphWrite()
 end
 
-
+--[[
+    Adds a break point to the graph.
+--]]
 function graphUpdateBreak()
 	print ("Adding breakpoint to graph...")
 
@@ -211,6 +209,102 @@ function graphUpdateBreak()
 
 	print("Done.")	
 	drawProgress()
+end
+
+--[[
+    Processes a string input to return boolean.
+    	input: 	String to read from.
+    	return:	Boolean result.
+--]]
+local function toboolean(input)
+	return input == "true"
+end	
+
+--[[
+    Reads the options file from disk for the first time.
+--]]
+local function optionsReadInitial()
+	local f = io.open("options", "r")
+	print("Attempting to read from options file...")
+
+	if f == nil then
+		print("No options file found. Creating a new one.")
+
+		local fNew = io.open("options", "w")
+		io.output(fNew)
+
+		io.write("# Mekanism Fusion Control Options #")
+
+		io.write("\n" .. tostring(automatic))
+		io.write("\n" .. tostring(value.status))
+
+		io.write("\n" .. tostring(getRedstone(wire.ignition)))
+		io.write("\n" .. tostring(getRedstone(wire.lasers)))
+		io.write("\n" .. tostring(getRedstone(wire.output)))
+		io.write("\n" .. tostring(getRedstone(wire.deut_prod)))
+		io.write("\n" .. tostring(getRedstone(wire.deut_imp)))
+		io.write("\n" .. tostring(getRedstone(wire.deut_exp)))
+		io.write("\n" .. tostring(getRedstone(wire.trit_prod)))
+		io.write("\n" .. tostring(getRedstone(wire.trit_imp)))
+		io.write("\n" .. tostring(getRedstone(wire.trit_exp)))
+		io.write("\n" .. tostring(getRedstone(wire.announcer)))
+		io.write("\n" .. tostring(getRedstone(wire.hohlraum)))
+
+		io.close(fNew)
+		print("Done.")		
+	else
+		print("Found options file. Loading options.")	
+
+		io.input(f)	
+
+		local e = io.read()
+
+		automatic = toboolean(io.read())
+		value.status = tonumber(io.read())
+
+		setRedstone(wire.ignition, toboolean(io.read()))
+		setRedstone(wire.lasers, toboolean(io.read()))
+		setRedstone(wire.output, toboolean(io.read()))
+		setRedstone(wire.deut_prod, toboolean(io.read()))
+		setRedstone(wire.deut_imp, toboolean(io.read()))
+		setRedstone(wire.deut_exp, toboolean(io.read()))
+		setRedstone(wire.trit_prod, toboolean(io.read()))
+		setRedstone(wire.trit_imp, toboolean(io.read()))
+		setRedstone(wire.trit_exp, toboolean(io.read()))
+		setRedstone(wire.announcer, toboolean(io.read()))
+		setRedstone(wire.hohlraum, toboolean(io.read()))
+
+		io.close(f)
+		print("Done.")		
+	end	
+	drawProgress()
+end
+
+--[[
+    Writes the options file to disk.
+--]]
+local function optionsWrite()
+	local f = io.open("options", "w")
+	io.output(f)
+
+	io.write("# Mekanism Fusion Control Options #")
+
+	io.write("\n" .. tostring(automatic))
+	io.write("\n" .. tostring(value.status))
+
+	io.write("\n" .. tostring(getRedstone(wire.ignition)))
+	io.write("\n" .. tostring(getRedstone(wire.lasers)))
+	io.write("\n" .. tostring(getRedstone(wire.output)))
+	io.write("\n" .. tostring(getRedstone(wire.deut_prod)))
+	io.write("\n" .. tostring(getRedstone(wire.deut_imp)))
+	io.write("\n" .. tostring(getRedstone(wire.deut_exp)))
+	io.write("\n" .. tostring(getRedstone(wire.trit_prod)))
+	io.write("\n" .. tostring(getRedstone(wire.trit_imp)))
+	io.write("\n" .. tostring(getRedstone(wire.trit_exp)))
+	io.write("\n" .. tostring(getRedstone(wire.announcer)))
+	io.write("\n" .. tostring(getRedstone(wire.hohlraum)))
+
+	io.close(f)
 end
 
 --[[
@@ -270,20 +364,62 @@ end
     Draws all buttons.
 --]]
 local function drawButtons() 
-	gpu.startFrame()
+	drawButton(218, 134, 12, 12, not automatic)
+	drawButton(218, 26, 12, 12, not automatic)
+	drawButton(218, 230, 12, 12, not automatic)
+	drawButton(410, 98, 12, 12, not automatic)
+	drawButton(410, 134, 12, 12, not automatic)
+	drawButton(266, 182, 12, 12, not automatic)
+	drawButton(278, 86, 12, 12, not automatic)
+	drawButton(386, 134, 12, 12, not automatic)
+	drawButton(170, 182, 12, 12, not automatic)
+	drawButton(266, 206, 12, 12, not automatic)
+end
 
-	drawButton(218, 134, 12, 12, button.ignition)
-	drawButton(218, 26, 12, 12, button.lasers)
-	drawButton(218, 230, 12, 12, button.output)
-	drawButton(410, 98, 12, 12, button.deut_prod)
-	drawButton(410, 134, 12, 12, button.deut_imp)
-	drawButton(266, 182, 12, 12, button.deut_exp)
-	drawButton(278, 86, 12, 12, button.trit_prod)
-	drawButton(386, 134, 12, 12, button.trit_imp)
-	drawButton(170, 182, 12, 12, button.trit_exp)
-	drawButton(266, 206, 12, 12, button.hohlraum)
-
-	gpu.endFrame()
+--[[
+    Draws the startup button.
+--]]
+local function drawStartup() 
+	if automatic then
+		drawButton(207, 171, 34, 34, true)
+		if value.status == 0 then
+			gpu.setColor(255, 0, 0)
+		elseif value.status == 1 then
+			gpu.setColor(255, 255, 0)
+		elseif value.status == 2 then
+			gpu.setColor(0, 255, 0)
+		elseif value.status == 3 then
+			gpu.setColor(255, 0, 255)
+		end	
+		gpu.filledRectangle(223, 175, 2, 13)
+		gpu.filledRectangle(222, 176, 4, 11)
+		gpu.filledRectangle(217, 178, 2, 3)
+		gpu.filledRectangle(229, 178, 2, 3)
+		gpu.filledRectangle(216, 179, 2, 3)
+		gpu.filledRectangle(230, 179, 2, 3)
+		gpu.filledRectangle(215, 180, 2, 3)
+		gpu.filledRectangle(231, 180, 2, 3)
+		gpu.filledRectangle(214, 181, 2, 4)
+		gpu.filledRectangle(232, 181, 2, 4)
+		gpu.filledRectangle(213, 183, 2, 10)
+		gpu.filledRectangle(233, 183, 2, 10)
+		gpu.filledRectangle(212, 185, 1, 6)
+		gpu.filledRectangle(235, 185, 1, 6)
+		gpu.filledRectangle(214, 191, 2, 4)
+		gpu.filledRectangle(232, 191, 2, 4)
+		gpu.filledRectangle(215, 193, 2, 3)
+		gpu.filledRectangle(231, 193, 2, 3)
+		gpu.filledRectangle(216, 194, 2, 3)
+		gpu.filledRectangle(230, 194, 2, 3)
+		gpu.filledRectangle(217, 195, 2, 3)
+		gpu.filledRectangle(229, 195, 2, 3)
+		gpu.filledRectangle(219, 196, 2, 3)
+		gpu.filledRectangle(227, 196, 2, 3)
+		gpu.filledRectangle(221, 197, 6, 3)
+	else
+		gpu.setColor(0, 0, 0)
+		gpu.filledRectangle(207, 171, 34, 34)
+	end	
 end
 
 --[[
@@ -315,15 +451,15 @@ local function drawValueAmplifier()
 	gpu.filledRectangle(284, 147, 64, 8)
 	local perc
 	local total
-	if value.laser_energy > 400000000 then
+	if value.laser_energy > requirementPrecharge then
 		perc = ">100.0%"
-		total = ">".. oclt.formatValue(400000, "|KRF")
+		total = ">".. oclt.formatValue(requirementPrecharge/1000, "|KRF")
 		gpu.setColor(0, 255, 255)
 		gpu.filledRectangle(245, 137, 102, 6)
 	else	
-		perc = round(value.laser_energy/400000000*100, 1) .. "%"
+		perc = round(value.laser_energy/requirementPrecharge*100, 1) .. "%"
 		total = oclt.formatValue(round(value.laser_energy/1000, 0), "|KRF")
-		local bar = value.laser_energy/400000000*102
+		local bar = value.laser_energy/requirementPrecharge*102
 		gpu.setColor(0, 255, 255)
 		gpu.filledRectangle(245, 137, bar, 6)
 		gpu.setColor(0, 0, 0)
@@ -413,6 +549,32 @@ local function drawGraph()
 	end
 
 	gpu.endFrame()
+end
+
+--[[
+    Draws the startup status.
+    	text:	Text to draw.
+    	color:	Color ID to use (0 - red, 1 - yellow, 2 - green).
+--]]
+local function drawStatus(text, color)
+	if monitorToggle then
+		gpu.startFrame()
+
+		gpu.setColor(0, 0, 0)
+		gpu.filledRectangle(243, 234, 200, 8)
+
+		if color == 0 then
+			oclt.drawText(gpu, text, 243, 234, 1, oclt.left, 255, 0, 0, 255, 0, 0, 0, 0)
+		elseif color == 1 then
+			oclt.drawText(gpu, text, 243, 234, 1, oclt.left, 255, 255, 0, 255, 0, 0, 0, 0)
+		elseif color == 2 then
+			oclt.drawText(gpu, text, 243, 234, 1, oclt.left, 0, 255, 0, 255, 0, 0, 0, 0)
+		elseif color == 3 then
+			oclt.drawText(gpu, text, 243, 234, 1, oclt.left, 255, 0, 255, 255, 0, 0, 0, 0)
+		end	
+
+		gpu.endFrame()
+	end
 end
 
 --[[
@@ -617,6 +779,15 @@ local function drawStatic()
 	oclt.drawText(gpu, "Case:", 10, 238, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
 end	
 
+local function drawAutomatic()
+	if automatic then
+		oclt.drawText(gpu, "Automatic", 8, 6, 1, oclt.left, 0, 255, 0, 255, 0, 0, 0, 0)
+	else
+		oclt.drawText(gpu, "Automatic", 8, 6, 1, oclt.left, 255, 0, 0, 255, 0, 0, 0, 0)	
+	end	
+	drawButton(4, 4, 61, 12, true)
+end	
+
 --[[
     Draws the reactor schematic.
 --]]
@@ -639,6 +810,7 @@ end
     Draws the laser schematic.
 --]]
 local function drawSchematicLaser() 
+	gpu.setColor(0, 0, 0)
 	local s = getRedstone(wire.lasers)
 	local m = 1
 	if not s then
@@ -840,11 +1012,11 @@ local function drawSchematicSunlight()
 	local s
 	if moment == 1 then
 		s = true
-		oclt.drawText(gpu, os.date("%H:%M", t), 343, 8, 1, oclt.center, 255, 255, 0, 255, 0, 0, 0, 255)	
+		oclt.drawText(gpu, os.date("%H:%M", t), 343, 8, 1, oclt.center, 255, 255, 255, 255, 0, 0, 0, 255)	
 		oclt.drawText(gpu, " Day ", 343, 17, 1, oclt.center, 255, 255, 0, 255, 0, 0, 0, 255)	
 	else
 		s = false
-		oclt.drawText(gpu, os.date("%H:%M", t), 343, 8, 1, oclt.center, 0, 24, 64, 255, 0, 0, 0, 255)	
+		oclt.drawText(gpu, os.date("%H:%M", t), 343, 8, 1, oclt.center, 255, 255, 255, 255, 0, 0, 0, 255)	
 		oclt.drawText(gpu, "Night", 343, 17, 1, oclt.center, 0, 24, 64, 255, 0, 0, 0, 255)	
 	end	
 	if moment ~= value.moment then
@@ -898,6 +1070,8 @@ local function drawUI()
 	drawSchematicOutput()
 
 	drawButtons() 
+	drawAutomatic()
+	drawStartup()
 	
 	drawMeasure()
 	drawGraph()
@@ -928,27 +1102,51 @@ end
     	player:		Player who performed the touch.
 --]]
 local function touchHandler(event, address, x, y, player)
-	print(event .. ", " .. address .. ", " .. x .. ", " .. y .. ", " .. player)
+	-- print(event .. ", " .. address .. ", " .. x .. ", " .. y .. ", " .. player)
 	if monitorToggle then
-		if touchArea(x, y, 218, 134, 12, 12) and button.ignition then
+		if touchArea(x, y, 4, 4, 61, 12) then
+			automatic = not automatic
+			gpu.startFrame()
+			drawButtons() 
+			drawAutomatic()
+			drawStartup()
+			gpu.endFrame()
+		elseif touchArea(x, y, 207, 171, 34, 34) and automatic and value.status > 0 then
+			if value.status == 1 then
+				countdown = 6
+				value.me_hohl_old = 0
+				value.status = 2
+				drawStatus("Beginning startup procedure...", 2)
+				gpu.startFrame()
+				drawStartup()
+				gpu.endFrame()
+			elseif value.status > 1 then
+				value.status = 0
+				stopInitiated = true
+				drawStatus("Stopping...", 0)
+				gpu.startFrame()
+				drawStartup()
+				gpu.endFrame()				
+			end
+		elseif touchArea(x, y, 218, 134, 12, 12) and not automatic then
 			toggleRedstone(wire.ignition)
-		elseif touchArea(x, y, 218, 26, 12, 12) and button.lasers then
+		elseif touchArea(x, y, 218, 26, 12, 12) and not automatic then
 			toggleRedstone(wire.lasers)
-		elseif touchArea(x, y, 218, 230, 12, 12) and button.output then
+		elseif touchArea(x, y, 218, 230, 12, 12) and not automatic then
 			toggleRedstone(wire.output)
-		elseif touchArea(x, y, 410, 98, 12, 12) and button.deut_prod then
+		elseif touchArea(x, y, 410, 98, 12, 12) and not automatic then
 			toggleRedstone(wire.deut_prod)
-		elseif touchArea(x, y, 410, 134, 12, 12) and button.deut_imp then
+		elseif touchArea(x, y, 410, 134, 12, 12) and not automatic then
 			toggleRedstone(wire.deut_imp)
-		elseif touchArea(x, y, 266, 182, 12, 12) and button.deut_exp then
+		elseif touchArea(x, y, 266, 182, 12, 12) and not automatic then
 			toggleRedstone(wire.deut_exp)
-		elseif touchArea(x, y, 278, 86, 12, 12) and button.trit_prod then
+		elseif touchArea(x, y, 278, 86, 12, 12) and not automatic then
 			toggleRedstone(wire.trit_prod)
-		elseif touchArea(x, y, 386, 134, 12, 12) and button.trit_imp then
+		elseif touchArea(x, y, 386, 134, 12, 12) and not automatic then
 			toggleRedstone(wire.trit_imp)
-		elseif touchArea(x, y, 170, 182, 12, 12) and button.trit_exp then
+		elseif touchArea(x, y, 170, 182, 12, 12) and not automatic then
 			toggleRedstone(wire.trit_exp)
-		elseif touchArea(x, y, 266, 206, 12, 12) and button.hohlraum then
+		elseif touchArea(x, y, 266, 206, 12, 12) and not automatic then
 			toggleRedstone(wire.hohlraum)
 		end
 	end
@@ -958,7 +1156,9 @@ end
     Handles redstone update events.
     	event:		Event ID.
     	address:	Address of the Redstone I/O.
-    	input:		Input wire number.
+    	side:		Side that registered the event.
+    	old:		Old value of the inpot.
+    	input:		New input value.
 --]]
 local function redstoneHandler(event, address, side, value, input)
 	-- print(event .. ", " .. address .. ", " .. side .. ", " .. value .. ", " .. input)
@@ -973,7 +1173,7 @@ local function redstoneHandler(event, address, side, value, input)
 			drawGraph()
 		end	
 	else
-		if monitorToggle then	
+		if monitorToggle then
 			gpu.startFrame()
 
 			drawSchematicLaser()
@@ -996,7 +1196,7 @@ end
     Attempts to connect to OCLights 2 GPU and sets up the touch event.
 --]]
 local function connectGpu()
-	-- print("Connecting to OCLights 2 GPU...")
+	print("Connecting to OCLights 2 GPU...")
 	if component.ocl_gpu ~= nil then
 		gpu = component.ocl_gpu
 		event.ignore("monitor_up", touchHandler)
@@ -1088,6 +1288,151 @@ local function connectCore()
 end	
 
 --[[
+    Processes a startup step.
+--]]
+local function processStep()
+	local newStatus
+	if not automatic then
+		newStatus = value.status
+		drawStatus("Manual Mode", 0)
+	elseif value.reactor_status and stopInitiated then
+		newStatus = 0
+		drawStatus("Stopping...", 0)
+		setRedstone(wire.ignition, false)
+		setRedstone(wire.lasers, false)
+		setRedstone(wire.announcer, false)
+		setRedstone(wire.hohlraum, false)
+		setRedstone(wire.output, true)
+		setRedstone(wire.trit_exp, false)
+		setRedstone(wire.deut_exp, false)
+		setRedstone(wire.trit_imp, false)
+		setRedstone(wire.deut_imp, false)
+		setRedstone(wire.trit_prod, false)
+		setRedstone(wire.deut_prod, false)
+	elseif value.reactor_status then
+		newStatus = 3
+		drawStatus("Running.", 3)
+		setRedstone(wire.ignition, false)
+		setRedstone(wire.lasers, false)
+		setRedstone(wire.announcer, false)
+		setRedstone(wire.hohlraum, false)
+		setRedstone(wire.output, true)
+		setRedstone(wire.trit_exp, true)
+		setRedstone(wire.deut_exp, true)
+		setRedstone(wire.trit_imp, true)
+		setRedstone(wire.deut_imp, true)
+		setRedstone(wire.trit_prod, true)
+		setRedstone(wire.deut_prod, true)
+	elseif value.status < 2 and value.core_energy < requirementEnergy then
+		newStatus = 0
+		drawStatus("Not enough energy in core.", 0)
+	elseif value.status < 3 and value.me_hohl < requirementHohlraum then
+		newStatus = 0
+		drawStatus("Missing Hohlraum.", 0)
+	elseif value.status == 2 and (value.me_trit < requirementFuel or value.me_deut < requirementFuel) then
+		newStatus = 2
+		drawStatus("Building up fuel...", 2)
+		setRedstone(wire.ignition, false)
+		setRedstone(wire.lasers, false)
+		setRedstone(wire.announcer, false)
+		setRedstone(wire.hohlraum, false)
+		setRedstone(wire.output, true)
+		setRedstone(wire.trit_exp, true)
+		setRedstone(wire.deut_exp, true)
+		setRedstone(wire.trit_imp, true)
+		setRedstone(wire.deut_imp, true)
+		setRedstone(wire.trit_prod, true)
+		setRedstone(wire.deut_prod, true)
+	elseif value.status == 2 and value.laser_energy < requirementPrecharge then
+		newStatus = 2
+		drawStatus("Precharging...", 2)
+		setRedstone(wire.ignition, false)
+		setRedstone(wire.lasers, true)
+		setRedstone(wire.announcer, false)
+		setRedstone(wire.hohlraum, false)
+		setRedstone(wire.output, true)
+		setRedstone(wire.trit_exp, true)
+		setRedstone(wire.deut_exp, true)
+		setRedstone(wire.trit_imp, true)
+		setRedstone(wire.deut_imp, true)
+		setRedstone(wire.trit_prod, true)
+		setRedstone(wire.deut_prod, true)
+	elseif value.status == 2 and value.me_hohl_old <= value.me_hohl then
+		newStatus = 2
+		drawStatus("Injecting Hohlraum...", 2)
+		setRedstone(wire.ignition, false)
+		setRedstone(wire.lasers, false)
+		setRedstone(wire.announcer, false)
+		setRedstone(wire.hohlraum, true)
+		setRedstone(wire.output, true)
+		setRedstone(wire.trit_exp, true)
+		setRedstone(wire.deut_exp, true)
+		setRedstone(wire.trit_imp, true)
+		setRedstone(wire.deut_imp, true)
+		setRedstone(wire.trit_prod, true)
+		setRedstone(wire.deut_prod, true)
+		value.me_hohl_old = value.me_hohl
+	elseif value.status == 2 and countdown > 0 then
+		newStatus = 2
+		drawStatus("Starting up in... " .. countdown, 2)
+		setRedstone(wire.ignition, false)
+		setRedstone(wire.lasers, false)
+		setRedstone(wire.announcer, true)
+		setRedstone(wire.hohlraum, false)
+		setRedstone(wire.output, true)
+		setRedstone(wire.trit_exp, true)
+		setRedstone(wire.deut_exp, true)
+		setRedstone(wire.trit_imp, true)
+		setRedstone(wire.deut_imp, true)
+		setRedstone(wire.trit_prod, true)
+		setRedstone(wire.deut_prod, true)
+		countdown = countdown - 1
+	elseif value.status == 2 and countdown == 0 then
+		newStatus = 3
+		drawStatus("Starting up!", 3)
+		setRedstone(wire.ignition, true)
+		setRedstone(wire.lasers, false)
+		setRedstone(wire.announcer, false)
+		setRedstone(wire.hohlraum, false)
+		setRedstone(wire.output, true)
+		setRedstone(wire.trit_exp, true)
+		setRedstone(wire.deut_exp, true)
+		setRedstone(wire.trit_imp, true)
+		setRedstone(wire.deut_imp, true)
+		setRedstone(wire.trit_prod, true)
+		setRedstone(wire.deut_prod, true)
+	elseif value.status == 3 and not value.reactor_status then
+		newStatus = 0
+		drawStatus("Stopping...", 0)
+	else
+		newStatus = 1
+		drawStatus("Ready.", 1)
+		stopInitiated = false
+	end	
+
+	if newStatus ~= value.status then
+		value.status = newStatus
+		gpu.startFrame()
+		drawStartup()
+		gpu.endFrame()
+	end	
+
+	if value.status < 2 and automatic then
+		setRedstone(wire.ignition, false)
+		setRedstone(wire.lasers, false)
+		setRedstone(wire.deut_prod, false)
+		setRedstone(wire.deut_imp, false)
+		setRedstone(wire.deut_exp, false)
+		setRedstone(wire.trit_prod, false)
+		setRedstone(wire.trit_imp, false)
+		setRedstone(wire.trit_exp, false)
+		setRedstone(wire.announcer, false)
+		setRedstone(wire.hohlraum, false)
+		setRedstone(wire.output, true)
+	end	
+end	
+
+--[[
     Updates the values of all sensors.
 --]]
 local function updateMeasure()
@@ -1100,6 +1445,8 @@ local function updateMeasure()
 	value.core_energy = core.getEnergyStored()
 	value.core_max = core.getMaxEnergyStored()
 
+	value.me_trit = 0
+	value.me_deut = 0
 	for key1, val1 in pairs(me.getGasesInNetwork()) do
 		if type(val1) == "table" then
 			if val1["name"] == "tritium" then
@@ -1109,13 +1456,16 @@ local function updateMeasure()
 			end	
 	  	end
 	end
+	value.me_hohl = 0
 	for key1, val1 in pairs(me.getItemsInNetwork()) do
 		if type(val1) == "table" then
-			if val1["name"] == "MekanismGenerators:HohlRaum" then
-				value.me_hohl = val1["amount"]
+			if val1["name"] == "MekanismGenerators:Hohlraum" then
+				value.me_hohl = val1["size"]
 			end	
 	  	end
 	end
+
+	setRedstone(wire.ambience, value.reactor_status)
 end	
 
 --[[
@@ -1138,6 +1488,8 @@ local function threadMeasure()
 		end	
 		graphCount = graphCount - 1
 
+		processStep()
+
 		os.sleep(intervalMeasure)
 	end	
 end
@@ -1157,6 +1509,9 @@ function handleEvent(eventID, ...)
   print(eventID)
 end
 
+--[[
+    Starts up the whole software.
+--]]
 local function start()
 	
 	term.clear()
@@ -1173,6 +1528,7 @@ local function start()
 	initialMeasure()
 	graphReadInitial()
 	graphUpdateBreak()
+	optionsReadInitial()
 
 	os.sleep(0.4)
 	print("Drawing UI...")
@@ -1190,6 +1546,9 @@ local function start()
 
 	print("\nClearning monitor...")
 	clearMonitor()
+	print("Done.")
+	print("\nSaving options...")
+	optionsWrite()
 	print("Done.")
 	print("Unregistering Events...")
 	event.ignore("monitor_up", touchHandler)
