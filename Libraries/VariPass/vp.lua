@@ -1,7 +1,7 @@
 --[[
     Library: VariPass (vp)
     Programmed by: Thorinair
-    Version: v1.0.0
+    Version: v1.0.1
     Description: Provides an API for easily exchanging data with the VariPass (varipass.org) website.
     Usage: 	
     	First add this library to the OpenComputers computer by placing it into the lib folder.
@@ -15,6 +15,8 @@
 local vp = {}
 
 local internet = require('internet')
+
+local url = "http://api.varipass.org"
 
 --[[ 
 	=====================================
@@ -53,7 +55,7 @@ vp.TYPE_STRING  = 3
     	result: The RESULT value, for instance RESULT_SUCCESS.
 --]]
 function vp.write(key, id, value)
-    local req = internet.request("http://api.varipass.org", { key = key, action = "swrite", id = id, value = tostring(value) })
+    local req = internet.request(url, { key = key, action = "swrite", id = id, value = tostring(value) })
 
     local data = ""
     for line in req do
@@ -91,7 +93,7 @@ end
     	result: The RESULT value, for instance RESULT_SUCCESS.
 --]]
 function vp.read(key, id, type)
-    local req = internet.request("http://api.varipass.org", { key = key, action = "sread", id = id })
+    local req = internet.request(url, { key = key, action = "sread", id = id })
 
     local data = ""
     for line in req do
