@@ -1,16 +1,19 @@
 --[[
     Application: Mekanism Fusion Control (mfc)
     Programmed by: Thorinair
-    Version: v1.1.1
+    Version: v1.2.0
     Description: The ultimate Mekanism fusion control software, which uses OCLights 2 screens.
     Usage: 
     	Download the library, connect all the necessary components listed in requirements and run the software.
     	The software works in two modes: Automatic and Manual. Automatic mode will automatically toggle parts of your facility to start a reaction,
-    	while the Manual mode lets you manually toggle them. The screen can be toggled using a redstone signal connected to Brown wire.
+    	while the Manual mode lets you manually toggle them. The screen can be toggled using a Button. If you have a VariPass (varipass.org) account,
+    	you can live-sync the data to the website.
     Requirements: 
     	OCLights 2 mod has to be installed, and a GPU should be connected with the OpenComputer.
-    	Additionally, the OCL Text library from this same repository should be installed on the OpenComputer.
-		A Redstone Controller should be attached to the computer. The wires are as follow:
+    	Additionally, the OCL Text and VariPass libraries from this same repository should be installed on the OpenComputer.
+    	An Internet Card has to be connected with the OpenComputer.
+		A user account can be created on VariPass (varipass.org), but is not necessary. If you want to use it, please edit the key and id values.
+		A Redstone I/O should be attached to the computer with Bundled Cable exiting from north. The wires are as follow:
 			- White			Sends a signal to the Laser Amplifier to start the Reactor.
 			- Orange		Toggles lasers for precharging of energy.
 			- Magenta		Toggles energy output from the Reactor.
@@ -23,12 +26,12 @@
 			- Cyan			Plays the announcer sound file of your choice. Use a Howler Alarm for this.
 			- Purple		Plays the ambient sound when the Reactor is running. Use a Howler Alarm for this.
 			- Blue			Injects a Hohlraum into the Reactor.
-			- Brown			Input wire for toggling the screen on and off.	
+		A Button should be attached to the top of Redstone I/O.
     	The following components are required to be attached to adapters:
 		  	- Reactor Logic Adapter (from Mekanism)
 			- Laser Amplifier (from Mekanism)
 			- ME Controller (from Applied Energistics 2)
-			- Energy Core (from Draconic Evolution)
+			- Energy Core (from Draconic Evolution)	
 --]]
 
 local component = require("component")
@@ -38,6 +41,11 @@ local sides = require("sides")
 local colors = require("colors")
 local term = require("term")
 local oclt = require("oclt")
+local vp = require("vp")
+
+local key 		= ""
+local id_core 	= ""
+local id_gain 	= ""
 
 local side = sides.north
 
@@ -54,9 +62,8 @@ wire.trit_exp	= colors.silver
 wire.announcer	= colors.cyan
 wire.ambience	= colors.purple
 wire.hohlraum	= colors.blue
-wire.monitor	= colors.brown
 
-local version = "v1.0.0"
+local version = "v1.2.0"
 
 local conversion = 2.5
 local intervalMeasure = 1
@@ -89,6 +96,7 @@ value.reactor_case = 0
 
 value.laser_energy = 0
 value.core_energy = 0
+value.core_energy_last = nil
 value.core_max = 0
 value.core_graph = {}
 
@@ -1522,6 +1530,14 @@ local function threadMeasure()
 		graphCount = graphCount - 1
 
 		processStep()
+
+		if key ~= "" then
+			if value.core_energy_last ~= nil then
+				vp.write(key, id_core, value.core_energy / 1000)
+				vp.write(key, id_gain, (value.core_energy - value.core_energy_last) / (intervalMeasure / 0.05))
+			end	
+			value.core_energy_last = value.core_energy
+		end
 
 		os.sleep(intervalMeasure)
 	end	
