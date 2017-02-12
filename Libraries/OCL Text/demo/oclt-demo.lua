@@ -1,17 +1,18 @@
 --[[
-    Application: OCL Text Demo (oclt-demo)
+    Demo: OCL Text Demo (oclt-demo)
     Programmed by: Thorinair
     Version: v1.0.1
     Description: Demo for testing the OCL Text library.
-    Usage: Download the library, connect an OCLights 2 GPU with the computer and run the demo.
+    Usage: Install the library, connect an OCLights 2 GPU with the computer and run the demo.
     Requirements: 
     	OCLights 2 mod has to be installed, and a GPU should be connected with the OpenComputer.
     	Additionally, the OCL Text library from this same repository should be installed on the OpenComputer.
 --]]
 
+local oclt = require("oclt")
+
 local component = require("component")
 local gpu = component.ocl_gpu
-local oclt = require("oclt")
 
 gpu.startFrame()
 
