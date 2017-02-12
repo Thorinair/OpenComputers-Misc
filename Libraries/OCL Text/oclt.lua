@@ -1,20 +1,22 @@
 --[[
-    Library: OCL Text
+    Library: OCL Text (oclt)
     Programmed by: Thorinair
     Version: v1.0.1
     Description: Provides an API for drawing text on OCLights 2 monitors.
-    Usage: First add this library to the OpenComputers computer by placing it into the lib folder.
-    	   Then, include the library in your program using the require function, and then access the functions by their name. 
-           The functions that should be used are on the bottom of this file, along with documentation.
-           When displaying text, keep in mind that the pipe character "|" is used for a smaller space between characters.
-           Additionally, it is highly suggested that you call gpu.startFrame() and gpu.endFrame() in your main program when drawing to avoid flicker.
+    Usage: 
+    	First add this library to the OpenComputers computer by placing it into the lib folder.
+    	Then, include the library in your program using the require function, and then access the functions by their name. 
+        The methods and values that should be used are in the "LIBRARY PUBLIC VALUES AND METHODS" section, along with documentation.
+        When displaying text, keep in mind that the pipe character "|" is used for a smaller space between characters.
+        Additionally, it is highly suggested that you call gpu.startFrame() and gpu.endFrame() in your main program when drawing to avoid flicker.
     Supported dymbols:
-    	   123456789
-    	   abcdefghijklmnopqrstuvwxyz
-    	   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-    	   !"#$%&/()=?*'+,.-;:_<>[]{}\
-		   |
-    Requirements: OCLights 2 mod has to be installed, and a GPU should be connected with the OpenComputer.
+    	123456789
+    	abcdefghijklmnopqrstuvwxyz
+    	ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    	!"#$%&/()=?*'+,.-;:_<>[]{}\
+		|
+    Requirements: 
+    	OCLights 2 mod has to be installed, and a GPU should be connected with the OpenComputer.
 --]]
 
 local ocltext = {}
@@ -644,11 +646,27 @@ local function drawChar(gpu, c, x, y, s)
 	return n
 end
 
+--[[ 
+	=====================================
+	  LIBRARY PUBLIC VALUES AND METHODS
+	=====================================
+--]]
+
+--[[
+    Text alignment constants.
+--]]
+ocltext.left = 0
+ocltext.right = 1
+ocltext.center = 2
+
 --[[
     Formats a number (separated by thousands) and appends a unit.
     This new string is easier to display on the monitor.
+    params:
     	number: The input number.
     	unit: 	The unit to append at the end.
+    return:
+    	string:	String that should be used for display on the monitor.	
 --]]
 function ocltext.formatValue(number, unit)
 
@@ -676,6 +694,7 @@ end
 
 --[[
     Draws text on the OC Lights 2 monitor.
+    params:
     	gpu: 	GPU component to draw to.
     	text: 	The string of text that will be drawn.
     	x: 		X position of text on the monitor.
@@ -727,12 +746,5 @@ function ocltext.drawText(gpu, text, x, y, size, align, r, g, b, a, rB, gB, bB, 
 		offs = drawChar(gpu, string.sub(text, i, i), offs, y, size)
 	end
 end	
-
---[[
-    Text alignment constants.
---]]
-ocltext.left = 0
-ocltext.right = 1
-ocltext.center = 2
 
 return ocltext

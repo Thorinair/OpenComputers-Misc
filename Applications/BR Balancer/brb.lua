@@ -1,10 +1,12 @@
 --[[
-    Application: BR Balancer
+    Application: BR Balancer (brb)
     Programmed by: Thorinair
     Version: v1.0.0
     Description: Balances the power production of multiple BigReactors at once.
-    Usage: Modify the parameters as explained in comments and run the application. Exit using Ctrl+Alt+C.
-    Requirements: BigReactors mod has to be installed, and at least one reactor has to be connected with the OpenComputer.
+    Usage: 
+    	Modify the parameters as explained in comments and run the application. Exit using Ctrl+Alt+C.
+    Requirements: 
+    	BigReactors mod has to be installed, and at least one reactor has to be connected with the OpenComputers computer.
 --]]
 
 -- Modify BEGIN --
