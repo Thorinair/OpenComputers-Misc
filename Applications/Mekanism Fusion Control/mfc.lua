@@ -356,9 +356,9 @@ local function drawLoading()
 
 	clearMonitor()
 	
-	oclt.drawText(gpu, "Starting up Mekanism Fusion Control by Thorinair.", 224, 108, 1, oclt.center, 255, 255, 255, 255, 0, 0, 0, 0)	
-	oclt.drawText(gpu, "Please wait...", 224, 120, 1, oclt.center, 255, 255, 255, 255, 0, 0, 0, 0)	
-	oclt.drawText(gpu, version, 439, 240, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)	
+	oclt.drawText(gpu, "Starting up Mekanism Fusion Control by Thorinair.", 224, 108, 1, oclt.ALIGN_CENTER, 255, 255, 255, 255, 0, 0, 0, 0)	
+	oclt.drawText(gpu, "Please wait...", 224, 120, 1, oclt.ALIGN_CENTER, 255, 255, 255, 255, 0, 0, 0, 0)	
+	oclt.drawText(gpu, version, 439, 240, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)	
 	
 	gpu.setColor(255, 255, 255)
 	gpu.filledRectangle(147, 140, 154, 1)
@@ -463,16 +463,16 @@ local function drawReactorInfo()
 	gpu.filledRectangle(54, 211, 90, 35)
 
 	if value.reactor_status then
-		oclt.drawText(gpu, "On", 54, 211, 1, oclt.left, 0, 255, 0, 255, 0, 0, 0, 0)
+		oclt.drawText(gpu, "On", 54, 211, 1, oclt.ALIGN_LEFT, 0, 255, 0, 255, 0, 0, 0, 0)
 	else	
-		oclt.drawText(gpu, "Off", 54, 211, 1, oclt.left, 255, 0, 0, 255, 0, 0, 0, 0)
+		oclt.drawText(gpu, "Off", 54, 211, 1, oclt.ALIGN_LEFT, 255, 0, 0, 255, 0, 0, 0, 0)
 	end	
-	oclt.drawText(gpu, oclt.formatValue(value.reactor_output, "|RF/t"), 54, 220, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, oclt.formatValue(value.reactor_output, "|RF/t"), 54, 220, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
 	oclt.drawText(gpu, oclt.formatValue(value.reactor_plasma, "|MK") 
 		.. "|/|"
-		.. oclt.formatValue(1200, "|MK"), 54, 229, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+		.. oclt.formatValue(1200, "|MK"), 54, 229, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
 	oclt.drawText(gpu, oclt.formatValue(value.reactor_case, "|MK") 
-		.. "|/|800|MK", 54, 238, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+		.. "|/|800|MK", 54, 238, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
 end	
 
 --[[
@@ -498,8 +498,8 @@ local function drawValueAmplifier()
 		gpu.setColor(0, 0, 0)
 		gpu.filledRectangle(245+bar, 137, 103-bar, 6)
 	end	
-	oclt.drawText(gpu, perc, 346, 126, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, total, 346, 147, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, perc, 346, 126, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, total, 346, 147, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
 end	
 
 --[[
@@ -514,8 +514,8 @@ local function drawValueTritium()
 	gpu.filledRectangle(317, 174, bar, 6)
 	gpu.setColor(0, 0, 0)
 	gpu.filledRectangle(317+bar, 174, 103-bar, 6)
-	oclt.drawText(gpu, round(value.me_trit/1024000*100, 1) .. "%", 418, 163, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, oclt.formatValue(value.me_trit, "|/|" .. oclt.formatValue(1024000, "|mB")), 418, 184, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, round(value.me_trit/1024000*100, 1) .. "%", 418, 163, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, oclt.formatValue(value.me_trit, "|/|" .. oclt.formatValue(1024000, "|mB")), 418, 184, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
 end	
 
 --[[
@@ -530,8 +530,8 @@ local function drawValueDeuterium()
 	gpu.filledRectangle(317, 208, bar, 6)
 	gpu.setColor(0, 0, 0)
 	gpu.filledRectangle(317+bar, 208, 103-bar, 6)
-	oclt.drawText(gpu, round(value.me_deut/1024000*100, 1) .. "%", 418, 197, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, oclt.formatValue(value.me_deut, "|/|" .. oclt.formatValue(1024000, "|mB")), 418, 218, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, round(value.me_deut/1024000*100, 1) .. "%", 418, 197, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, oclt.formatValue(value.me_deut, "|/|" .. oclt.formatValue(1024000, "|mB")), 418, 218, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
 end	
 
 --[[
@@ -552,8 +552,8 @@ local function drawValueCore()
 	end	
 	gpu.setColor(0, 0, 0)
 	gpu.filledRectangle(148, 52, 8, bar)
-	oclt.drawText(gpu, round(value.core_energy/value.core_max*100, 1) .. "%", 146, 41, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, oclt.formatValue(round(value.core_energy/1000, 0), "|KRF|/|"), 138, 32, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, round(value.core_energy/value.core_max*100, 1) .. "%", 146, 41, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, oclt.formatValue(round(value.core_energy/1000, 0), "|KRF|/|"), 138, 32, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
 end	
 
 --[[
@@ -597,13 +597,13 @@ local function drawStatus(text, color)
 		gpu.filledRectangle(243, 234, 200, 8)
 
 		if color == 0 then
-			oclt.drawText(gpu, text, 243, 234, 1, oclt.left, 255, 0, 0, 255, 0, 0, 0, 0)
+			oclt.drawText(gpu, text, 243, 234, 1, oclt.ALIGN_LEFT, 255, 0, 0, 255, 0, 0, 0, 0)
 		elseif color == 1 then
-			oclt.drawText(gpu, text, 243, 234, 1, oclt.left, 255, 255, 0, 255, 0, 0, 0, 0)
+			oclt.drawText(gpu, text, 243, 234, 1, oclt.ALIGN_LEFT, 255, 255, 0, 255, 0, 0, 0, 0)
 		elseif color == 2 then
-			oclt.drawText(gpu, text, 243, 234, 1, oclt.left, 0, 255, 0, 255, 0, 0, 0, 0)
+			oclt.drawText(gpu, text, 243, 234, 1, oclt.ALIGN_LEFT, 0, 255, 0, 255, 0, 0, 0, 0)
 		elseif color == 3 then
-			oclt.drawText(gpu, text, 243, 234, 1, oclt.left, 255, 0, 255, 255, 0, 0, 0, 0)
+			oclt.drawText(gpu, text, 243, 234, 1, oclt.ALIGN_LEFT, 255, 0, 255, 255, 0, 0, 0, 0)
 		end	
 
 		gpu.endFrame()
@@ -726,7 +726,7 @@ local function drawStaticBar(x, y, text)
 	gpu.filledRectangle(x+12, y+9, 106, 1)
 	gpu.filledRectangle(x+12, y+1, 1, 8)
 	gpu.filledRectangle(x+117, y+1, 1, 8)
-	oclt.drawText(gpu, text, x+14, y-9, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, text, x+14, y-9, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
 end	
 
 --[[
@@ -748,14 +748,14 @@ local function drawStaticGraph()
 	gpu.filledRectangle(107, 182, 1, 1)
 	gpu.filledRectangle(139, 182, 1, 1)
 	gpu.filledRectangle(141, 180, 1, 1)
-	oclt.drawText(gpu, "Energy Core", 44, 21, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, oclt.formatValue(round(value.core_max/1000, 0), "|KRF"), 128, 41, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "100%", 38, 49, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "0%", 38, 176, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "-96", 48, 185, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "-64", 80, 185, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "-32", 112, 185, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "0", 141, 185, 1, oclt.right, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "Energy Core", 44, 21, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, oclt.formatValue(round(value.core_max/1000, 0), "|KRF"), 128, 41, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "100%", 38, 49, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "0%", 38, 176, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "-96", 48, 185, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "-64", 80, 185, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "-32", 112, 185, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "0", 141, 185, 1, oclt.ALIGN_RIGHT, 255, 255, 255, 255, 0, 0, 0, 0)
 end	
 
 --[[
@@ -802,21 +802,21 @@ local function drawStatic()
 	gpu.setColor(255, 50, 50)
 	gpu.filledRectangle(291, 206, 10, 10)
 
-	oclt.drawText(gpu, "Status:", 243, 225, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "Status:", 243, 225, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
 
-	oclt.drawText(gpu, "Reactor Info", 7, 200, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "Reactor Info", 7, 200, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
 
-	oclt.drawText(gpu, "Status:", 10, 211, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "Output:", 10, 220, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "Plasma:", 10, 229, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
-	oclt.drawText(gpu, "Case:", 10, 238, 1, oclt.left, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "Status:", 10, 211, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "Output:", 10, 220, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "Plasma:", 10, 229, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
+	oclt.drawText(gpu, "Case:", 10, 238, 1, oclt.ALIGN_LEFT, 255, 255, 255, 255, 0, 0, 0, 0)
 end	
 
 local function drawAutomatic()
 	if automatic then
-		oclt.drawText(gpu, "Automatic", 8, 6, 1, oclt.left, 0, 255, 0, 255, 0, 0, 0, 0)
+		oclt.drawText(gpu, "Automatic", 8, 6, 1, oclt.ALIGN_LEFT, 0, 255, 0, 255, 0, 0, 0, 0)
 	else
-		oclt.drawText(gpu, "Automatic", 8, 6, 1, oclt.left, 255, 0, 0, 255, 0, 0, 0, 0)	
+		oclt.drawText(gpu, "Automatic", 8, 6, 1, oclt.ALIGN_LEFT, 255, 0, 0, 255, 0, 0, 0, 0)	
 	end	
 	drawButton(4, 4, 61, 12, true)
 end	
@@ -1045,12 +1045,12 @@ local function drawSchematicSunlight()
 	local s
 	if moment == 1 then
 		s = true
-		oclt.drawText(gpu, os.date("%H:%M", t), 343, 8, 1, oclt.center, 255, 255, 255, 255, 0, 0, 0, 255)	
-		oclt.drawText(gpu, " Day ", 343, 17, 1, oclt.center, 255, 255, 0, 255, 0, 0, 0, 255)	
+		oclt.drawText(gpu, os.date("%H:%M", t), 343, 8, 1, oclt.ALIGN_CENTER, 255, 255, 255, 255, 0, 0, 0, 255)	
+		oclt.drawText(gpu, " Day ", 343, 17, 1, oclt.ALIGN_CENTER, 255, 255, 0, 255, 0, 0, 0, 255)	
 	else
 		s = false
-		oclt.drawText(gpu, os.date("%H:%M", t), 343, 8, 1, oclt.center, 255, 255, 255, 255, 0, 0, 0, 255)	
-		oclt.drawText(gpu, "Night", 343, 17, 1, oclt.center, 0, 24, 64, 255, 0, 0, 0, 255)	
+		oclt.drawText(gpu, os.date("%H:%M", t), 343, 8, 1, oclt.ALIGN_CENTER, 255, 255, 255, 255, 0, 0, 0, 255)	
+		oclt.drawText(gpu, "Night", 343, 17, 1, oclt.ALIGN_CENTER, 0, 24, 64, 255, 0, 0, 0, 255)	
 	end	
 	if moment ~= value.moment then
 		value.moment = moment

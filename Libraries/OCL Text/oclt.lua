@@ -1,7 +1,7 @@
 --[[
     Library: OCL Text (oclt)
     Programmed by: Thorinair
-    Version: v1.0.1
+    Version: v1.1.0
     Description: Provides an API for drawing text on OCLights 2 monitors.
     Usage: 
     	First add this library to the OpenComputers computer by placing it into the lib folder.
@@ -19,7 +19,7 @@
     	OCLights 2 mod has to be installed, and a GPU should be connected with the OpenComputer.
 --]]
 
-local ocltext = {}
+local oclt = {}
 
 local function drawBackground(gpu, c, x, y, s)
 	local n
@@ -653,11 +653,11 @@ end
 --]]
 
 --[[
-    Text alignment constants.
+    Text alignment values.
 --]]
-ocltext.left = 0
-ocltext.right = 1
-ocltext.center = 2
+oclt.ALIGN_LEFT 	= 0
+oclt.ALIGN_RIGHT 	= 1
+oclt.ALIGN_CENTER 	= 2
 
 --[[
     Formats a number (separated by thousands) and appends a unit.
@@ -668,7 +668,7 @@ ocltext.center = 2
     return:
     	string:	String that should be used for display on the monitor.	
 --]]
-function ocltext.formatValue(number, unit)
+function oclt.formatValue(number, unit)
 
 	local text = tostring(number)
 	local length = string.len(text)
@@ -700,7 +700,7 @@ end
     	x: 		X position of text on the monitor.
     	y: 		Y position of text on the monitor.
     	size:	Size multiplier for the text.
-    	align:	Alignment of the text, can be left, right or center.
+    	align:	Alignment of the text, should be one of the ALIGN values.
     	r:		Red color component of the text, 0-255.
     	g:		Green color component of the text, 0-255.
     	b:		Blue color component of the text, 0-255.
@@ -710,7 +710,7 @@ end
     	bB:		Blue color component of the background, 0-255.
     	aB:		Alpha (transparency) of the background, 0-255.
 --]]
-function ocltext.drawText(gpu, text, x, y, size, align, r, g, b, a, rB, gB, bB, aB)
+function oclt.drawText(gpu, text, x, y, size, align, r, g, b, a, rB, gB, bB, aB)
 	local length = string.len(text)
 	local n = 0
 	local offs
@@ -723,11 +723,11 @@ function ocltext.drawText(gpu, text, x, y, size, align, r, g, b, a, rB, gB, bB, 
 	end
 	
 	-- Setup Alignment
-	if align == 0 then
+	if align == oclt.ALIGN_LEFT then
 		offs = x
-	elseif align == 1 then
+	elseif align == oclt.ALIGN_RIGHT then
 		offs = x - length*6*size+2 + n*4*size
-	elseif align == 2 then
+	elseif align == oclt.ALIGN_CENTER then
 		offs = x - math.floor(length*6/2*size + n*4*size)
 	end
 	local bgOffs = offs
@@ -747,4 +747,4 @@ function ocltext.drawText(gpu, text, x, y, size, align, r, g, b, a, rB, gB, bB, 
 	end
 end	
 
-return ocltext
+return oclt
