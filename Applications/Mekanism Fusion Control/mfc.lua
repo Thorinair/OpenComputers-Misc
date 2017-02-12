@@ -1,7 +1,7 @@
 --[[
     Application: Mekanism Fusion Control (mfc)
     Programmed by: Thorinair
-    Version: v1.1.0
+    Version: v1.1.1
     Description: The ultimate Mekanism fusion control software, which uses OCLights 2 screens.
     Usage: 
     	Download the library, connect all the necessary components listed in requirements and run the software.
@@ -37,7 +37,7 @@ local fs = require("filesystem")
 local sides = require("sides")
 local colors = require("colors")
 local term = require("term")
-local oclt = require("ocl-text")
+local oclt = require("oclt")
 
 local side = sides.north
 
