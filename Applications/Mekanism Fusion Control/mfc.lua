@@ -14,19 +14,19 @@
     	An Internet Card has to be connected with the OpenComputer.
 		A user account can be created on VariPass (varipass.org), but is not necessary. If you want to use it, please edit the key and id values.
 		A Redstone I/O should be attached to the computer with Bundled Cable exiting from north. The wires are as follow:
-			- White			Sends a signal to the Laser Amplifier to start the Reactor.
-			- Orange		Toggles lasers for precharging of energy.
-			- Magenta		Toggles energy output from the Reactor.
-			- Light blue	Toggles Deuterium production.
-			- Yellow		Toggles Deuterium importing to the ME Network.
-			- Lime			Toggles Deuterium exporting from the ME Network into the Reactor.
-			- Pink			Toggles Tritium production.
-			- Gray			Toggles Tritium importing to the ME Network.
-			- Silver		Toggles Tritium exporting from the ME Network into the Reactor.
-			- Cyan			Plays the announcer sound file of your choice. Use a Howler Alarm for this.
-			- Purple		Plays the ambient sound when the Reactor is running. Use a Howler Alarm for this.
-			- Blue			Injects a Hohlraum into the Reactor.
-		A Button should be attached to the top of Redstone I/O.
+			- White         Sends a signal to the Laser Amplifier to start the Reactor.
+			- Orange        Toggles lasers for precharging of energy.
+			- Magenta       Toggles energy output from the Reactor.
+			- Light blue    Toggles Deuterium production.
+			- Yellow        Toggles Deuterium importing to the ME Network.
+			- Lime          Toggles Deuterium exporting from the ME Network into the Reactor.
+			- Pink          Toggles Tritium production.
+			- Gray          Toggles Tritium importing to the ME Network.
+			- Silver        Toggles Tritium exporting from the ME Network into the Reactor.
+			- Cyan          Plays the announcer sound file of your choice. Use a Howler Alarm for this.
+			- Purple        Plays the ambient sound when the Reactor is running. Use a Howler Alarm for this.
+			- Blue          Injects a Hohlraum into the Reactor.
+    	A Button should be attached to the top of Redstone I/O.
     	The following components are required to be attached to adapters:
 		  	- Reactor Logic Adapter (from Mekanism)
 			- Laser Amplifier (from Mekanism)
@@ -43,9 +43,9 @@ local term = require("term")
 local oclt = require("oclt")
 local vp = require("vp")
 
-local key 		= ""
-local id_core 	= ""
-local id_gain 	= ""
+local key       = ""
+local id_core   = ""
+local id_gain   = ""
 
 local side = sides.north
 
